@@ -1,0 +1,10 @@
+apiVersion: v1
+appVersion: "v1.3.0"
+description: Pilosa Cluster for Kubernetes
+name: pilosa-cluster
+version: "0.1.0"
+keywords: ["pilosa", "distributed", "index"],
+home: "https://www.pilosa.com"
+maintainers:
+  - name: Yuce Tekol
+    email: yuce@pilosa.com

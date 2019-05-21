@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "pilosa-cluster.fullname" . }}
+  labels:
+  {{ include "pilosa-cluster.labels" . | indent 4 }}
+spec:
+  serviceName: {{ include "pilosa-cluster.fullname" . }}
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "pilosa-cluster.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "pilosa-cluster.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      volumes:
+      - name: config
+        emptyDir: {}
+      - name: config-map
+        configMap:
+          name: config-map
+      initContainers:
+      - name: init-pilosa
+        image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
+        args: ["pilosa-0.pilosa.molecula.svc.cluster.local"]
+        imagePullPolicy: {{ .Values.initImage.pullPolicy }}
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: config-map
+          mountPath: /config-map
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        args: ["server", "-c", "/config/pilosa.toml", "-d", "/data", "--gossip.port", "15000"]
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        ports:
+        - containerPort: 10101
+          name: data
+        - containerPort: 15000
+          name: gossip
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: data
+          mountPath: /data
