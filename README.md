@@ -1,17 +1,21 @@
 # Pilosa Cluster Helm Chart
 
-## Change Log
 
-* **v0.1.0** (2019-05-21)
-    * Initial release.
+## Prerequisites
 
-## Installation
+- helm
 
-### Prerequisites
+## Packaging
 
+```
+$ helm package pilosa
+```
 
-## Usage
+## Install
 
+```
+$ helm install ./pilosa/helm/pilosa-0.1.0.tgz --set persistentVolume.enabled=true
+```
 
 ## Contact
 

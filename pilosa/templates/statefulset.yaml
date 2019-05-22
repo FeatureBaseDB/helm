@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "pilosa.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  serviceName: {{ include "pilosa.fullname" . }}
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "pilosa.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      labels:
+        app.kubernetes.io/name: {{ include "pilosa.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      volumes:
+      - name: config
+        emptyDir: {}
+      # - name: config-map
+      #   configMap:
+      #     name: config-map
+      initContainers:
+      - name: init-pilosa
+        image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
+        args: ["{{ include "pilosa.fullname" . }}-0.{{ .Release.Namespace }}.svc.cluster.local"]
+        imagePullPolicy: {{ .Values.initImage.pullPolicy }}
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        # - name: config-map
+        #   mountPath: /config-map
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        args: ["server", "-c", "/config/pilosa.toml", "-d", "/data", "--gossip.port", "15000"]
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        ports:
+        - containerPort: 10101
+          name: data
+        - containerPort: 15000
+          name: gossip
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: {{ .Values.persistentVolume.name }}
+          mountPath: /data
+{{- if .Values.persistentVolume.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Values.persistentVolume.name }}
+        annotations:
+        {{- range $key, $value := .Values.persistentVolume.annotations }}
+          {{ $key }}: {{ $value }}
+        {{- end }}
+      spec:
+        accessModes:
+        {{- range .Values.persistentVolume.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistentVolume.size | quote }}
+      {{- if .Values.persistentVolume.storageClass }}
+      {{- if (eq "-" .Values.persistentVolume.storageClass) }}
+        storageClassName: ""
+      {{- else }}
+        storageClassName: "{{ .Values.persistentVolume.storageClass }}"
+      {{- end }}
+      {{- end }}
+{{- end }}
