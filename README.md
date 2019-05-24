@@ -3,7 +3,7 @@
 
 ## Prerequisites
 
-- helm
+- helm v2
 
 ## Packaging
 
@@ -11,10 +11,12 @@
 $ helm package pilosa
 ```
 
+Creates the `pilosa-${VERSION}.tgz` package.
+
 ## Install
 
 ```
-$ helm install ./pilosa/helm/pilosa-0.1.0.tgz --set persistentVolume.enabled=true
+$ helm install --name my-release  --set persistentVolume.enabled=true ./pilosa-0.1.0.tgz
 ```
 
 ## Contact
