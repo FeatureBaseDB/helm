@@ -3,3 +3,14 @@ kind: ConfigMap
 metadata:
   name: {{ include "pilosa.fullname" . }}
   namespace: {{ .Release.Namespace }}
+data:
+  coordinator.toml: |
+    # Configuration for the Pilosa coordinator node.
+    bind = "__pilosa.coordinator__:10101"
+    [cluster]
+    coordinator = true
+  node.toml: |
+    # Configuration for Pilosa non-coordinator nodes.
+    bind = "0.0.0.0:10101"
+    [gossip]
+    seeds = ["__pilosa.coordinator__:15000"]

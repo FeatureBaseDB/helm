@@ -24,19 +24,19 @@ spec:
       volumes:
       - name: config
         emptyDir: {}
-      # - name: config-map
-      #   configMap:
-      #     name: config-map
+      - name: config-map
+        configMap:
+          name: {{ include "pilosa.fullname" . }}
       initContainers:
       - name: init-pilosa
         image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
-        args: ["{{ include "pilosa.fullname" . }}-0.{{ .Release.Namespace }}.svc.cluster.local"]
+        args: ["{{ include "pilosa.fullname" . }}-0.{{ include "pilosa.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local"]
         imagePullPolicy: {{ .Values.initImage.pullPolicy }}
         volumeMounts:
         - name: config
           mountPath: /config
-        # - name: config-map
-        #   mountPath: /config-map
+        - name: config-map
+          mountPath: /config-map
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
