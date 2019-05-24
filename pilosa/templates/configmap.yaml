@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: {{ include "pilosa.fullname" . }}
   namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "pilosa.labels" . | indent 4 }}
 data:
   coordinator.toml: |
     # Configuration for the Pilosa coordinator node.

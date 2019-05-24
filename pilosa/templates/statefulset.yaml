@@ -3,6 +3,8 @@ kind: StatefulSet
 metadata:
   name: {{ include "pilosa.fullname" . }}
   namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "pilosa.labels" . | indent 4 }}
 spec:
   serviceName: {{ include "pilosa.fullname" . }}
   replicas: {{ .Values.replicaCount }}
@@ -58,6 +60,8 @@ spec:
   volumeClaimTemplates:
     - metadata:
         name: {{ .Values.persistentVolume.name }}
+        labels:
+{{ include "pilosa.labels" . | indent 12 }}
         annotations:
         {{- range $key, $value := .Values.persistentVolume.annotations }}
           {{ $key }}: {{ $value }}
