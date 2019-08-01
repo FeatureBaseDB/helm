@@ -1,5 +1,10 @@
-# Pilosa Cluster Helm Chart
+# Pilosa Cluster Helm Chart (Alpha)
 
+This repository contains the Helm chart for Pilosa distributed index. The open source project is at: https://www.pilosa.com.
+
+This chart is being tested and is not recommended to be used in production.
+
+We are looking for feedback about the chart. If you have fixes or improvements to this Helm chart, you can file an issue at https://github.com/pilosa/helm or send an email to dev@pilosa.com.
 
 ## Prerequisites
 
@@ -16,7 +21,7 @@ Creates the `pilosa-${VERSION}.tgz` package.
 ## Install
 
 ```
-$ helm install --name my-release  --set persistentVolume.enabled=true ./pilosa-0.1.0.tgz
+$ helm install --name my-release --set persistentVolume.enabled=true ./pilosa-0.1.1.tgz
 ```
 
 ## Contact
@@ -29,9 +34,7 @@ Copyright 2019 Pilosa Corp.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
+You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
